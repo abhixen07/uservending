@@ -1,13 +1,13 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
 import 'package:vending_app/ui/Pages/ProfilePage.dart';
 
 class DrawerSide extends StatefulWidget {
-  final File? imageFile; // Add this line
-
-  DrawerSide({Key? key, this.imageFile}) : super(key: key); // Modify this line
+  DrawerSide({Key? key}) : super(key: key);
 
   @override
   _DrawerSideState createState() => _DrawerSideState();
@@ -16,6 +16,45 @@ class DrawerSide extends StatefulWidget {
 class _DrawerSideState extends State<DrawerSide> {
   Color textColor = Colors.black;
   Color primaryColor = Colors.white;
+
+  late String _imagePath;
+  File? _image;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  late String _userEmail = "";
+  late String _userName = "User Name:";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    final User? user = _auth.currentUser;
+
+    if (user != null) {
+      setState(() {
+        _userEmail = user.email ?? ""; // Fetch user's email
+      });
+
+      final DocumentSnapshot<Map<String, dynamic>> snapshot =
+      await _firestore.collection('users').doc(user.uid).get();
+
+      if (snapshot.exists) {
+        setState(() {
+          _imagePath = snapshot.data()?['profile_image_path'] ?? '';
+          if (_imagePath.isNotEmpty) {
+            _image = File(_imagePath);
+          } else {
+            _image = null; // Clear the image if path is empty
+          }
+        });
+      }
+    }
+  }
 
   Widget listTile({
     String title = "",
@@ -26,7 +65,8 @@ class _DrawerSideState extends State<DrawerSide> {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.grey[300]!), // Add a bottom border
+          bottom: BorderSide(
+              color: Colors.grey[300]!), // Add a bottom border
         ),
       ),
       child: ListTile(
@@ -49,8 +89,8 @@ class _DrawerSideState extends State<DrawerSide> {
   Widget build(BuildContext context) {
     // Replace the following lines with your actual user data retrieval logic
     var userData = UserData(
-      userName: "VEND VIBE",
-      userEmail: "vendvibe@gmail.com",
+      userName: _userName,
+      userEmail: _userEmail, // Use the fetched user email here
       userImage: "assets/avatar.png", // Change to your local asset path
     );
 
@@ -67,16 +107,15 @@ class _DrawerSideState extends State<DrawerSide> {
                   child: Row(
                     children: [
                       CircleAvatar(
-                        radius: 43,
-                        backgroundColor: Colors.white,
+                        radius: 45, // Increased size
+                        backgroundColor: primaryColor,
                         child: CircleAvatar(
+                          backgroundImage: _image != null
+                              ? FileImage(_image!)
+                              : AssetImage("assets/avatar.png")
+                          as ImageProvider,
+                          radius: 42, // Adjusted size
                           backgroundColor: Colors.black12,
-                          backgroundImage: widget.imageFile != null
-                              ? FileImage(widget.imageFile!)
-                              : AssetImage(
-                            userData.userImage,
-                          ) as ImageProvider,
-                          radius: 40,
                         ),
                       ),
                       SizedBox(
@@ -86,7 +125,13 @@ class _DrawerSideState extends State<DrawerSide> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(userData.userName),
+                          Text(
+                            userData.userName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
                           Text(
                             userData.userEmail,
                             overflow: TextOverflow.ellipsis,
@@ -102,8 +147,10 @@ class _DrawerSideState extends State<DrawerSide> {
               iconData: Icons.home_outlined,
               title: "Home",
               onTap: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => SelectMachineForItems()));
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SelectMachineForItems()));
               },
             ),
             listTile(
@@ -164,14 +211,10 @@ class _DrawerSideState extends State<DrawerSide> {
               iconData: Icons.person_outlined,
               title: "My Profile",
               onTap: () {
-                Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => ProfilePage()));
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => ProfilePage()));
               },
             ),
-            // listTile(
-            //     iconData: Icons.notifications_outlined, title: "Notifications"),
-            // listTile(iconData: Icons.star_outline, title: "Rating & Review"),
-            // listTile(iconData: Icons.format_quote_outlined, title: "FAQs"),
             SizedBox(
               height: 25,
             ),

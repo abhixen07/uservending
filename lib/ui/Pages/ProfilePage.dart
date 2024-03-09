@@ -77,11 +77,25 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void _removeImage() {
+  void _removeImage() async {
     setState(() {
       _image = null;
     });
-    // Optionally, remove the image from Firebase or any storage location
+
+    final User? user = _auth.currentUser;
+
+    if (user != null) {
+      await _firestore.collection('users').doc(user.uid).update({
+        'profile_image_path': FieldValue.delete(),
+      });
+    }
+
+    if (_imagePath.isNotEmpty) {
+      final File imageFile = File(_imagePath);
+      if (await imageFile.exists()) {
+        await imageFile.delete();
+      }
+    }
   }
 
   @override
@@ -99,7 +113,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      drawer: DrawerSide(imageFile: _image),
+      drawer: DrawerSide(),
 
       body: Stack(
         children: [
@@ -138,6 +152,24 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ],
                     ),
+                    Center(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'User Name: ',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            TextSpan(
+                              text: _auth.currentUser?.email ?? 'User Name:',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 20,),
+
                     listTile(
                       icon: Icons.person_outline,
                       title: "Refer A Friend",
