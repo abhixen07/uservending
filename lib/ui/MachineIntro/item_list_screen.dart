@@ -286,9 +286,13 @@ class _ItemListScreenState extends State<ItemListScreen> {
           children: [
             Text('Items List'),
             SizedBox(width: 10),
-            buildCartIcon(),
+
           ],
+
         ),
+        actions: [
+          buildCartIcon(context),
+        ],
         centerTitle: true,
       ),
       body: StreamBuilder(
@@ -403,52 +407,53 @@ class _ItemListScreenState extends State<ItemListScreen> {
 
   }
 
-  Widget buildCartIcon() {
-    return Stack(
-      children: [
-        IconButton(
-          onPressed: () {
-           // if (cartItemCount > 0)
-            {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CartPage(
-                      selectedIds: selectedIds, machineId: widget.machineId),
-                ),
-              );
-            }
-            /*
-            else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Your cart is empty!')),
-              );
-            }
-
-             */
-          },
-          icon: Icon(Icons.shopping_cart),
-        ),
-        cartItemCount > 0
-            ? Positioned(
-          right: 8,
-          top: 8,
-          child: CircleAvatar(
-            backgroundColor: Colors.red,
-            radius: 10,
-            child: Text(
-              cartItemCount.toString(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
+  Widget buildCartIcon(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        if (cartItemCount > 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CartPage(
+                selectedIds: selectedIds,
+                machineId: widget.machineId,
               ),
             ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Your cart is empty!')),
+          );
+        }
+      },
+      icon: Stack(
+        children: [
+          Icon(
+            Icons.shopping_bag_outlined,
+            size: 30, // Adjust the size of the shopping bag icon
           ),
-        )
-            : SizedBox(),
-      ],
+          if (cartItemCount > 0)
+            Positioned(
+              right: 0,
+              top: 0,
+              child: CircleAvatar(
+                backgroundColor: Colors.red,
+                radius: 8, // Adjust the radius to decrease badge size
+                child: Text(
+                  cartItemCount.toString(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10, // Adjust the font size of the badge text
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
+
   }
+
 
   void addToCart(String id) {
     setState(() {
@@ -474,17 +479,68 @@ class _ItemListScreenState extends State<ItemListScreen> {
         String quantity = data['quantity'] ?? '';
         String imageUrl = data['imageUrl'] ?? '';
         bool isSelected = selectedIds.contains(id);
-        return ListTile(
-          leading: imageUrl.isNotEmpty ? Image.network(imageUrl) : SizedBox(),
-          title: Text(itemName),
-          subtitle: Text('Price: $price, Quantity: $quantity'),
-          trailing: ElevatedButton(
-            onPressed: () {
-              addToCart(id);
-            },
-            child: Text(isSelected ? 'Remove from Cart' : 'Add to Cart'),
+        return Card(
+          elevation: 3,
+          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(14),
+            leading: imageUrl.isNotEmpty
+                ? Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(color: Colors.black),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 3,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(5.0),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  width: 60,
+                  height: 100,
+                ),
+              ),
+            )
+                : SizedBox(width: 80, height: 80),
+            title: Text(
+              itemName,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+            subtitle: Text(
+              'Price: $price\nQuantity: $quantity',
+              style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+            ),
+            trailing: ElevatedButton(
+              onPressed: () {
+                addToCart(id);
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                  isSelected ? Colors.red : Colors.green,
+                ),
+                textStyle: MaterialStateProperty.all<TextStyle>(
+                  TextStyle(fontWeight: FontWeight.bold),
+                ),
+                shape: MaterialStateProperty.all<OutlinedBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              child: Text(
+                isSelected ? 'Remove from Cart' : 'Add to Cart',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ),
         );
+
       } else {
         return SizedBox();
       }
