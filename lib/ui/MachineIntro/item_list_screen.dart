@@ -525,12 +525,15 @@ class _ItemListScreenState extends State<ItemListScreen> {
                   isSelected ? Colors.red : Colors.green,
                 ),
                 textStyle: MaterialStateProperty.all<TextStyle>(
-                  TextStyle(fontWeight: FontWeight.bold),
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: 12), // Adjust font size
                 ),
                 shape: MaterialStateProperty.all<OutlinedBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
+                ),
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                  EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Adjust padding
                 ),
               ),
               child: Text(
@@ -538,6 +541,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
                 style: TextStyle(color: Colors.white),
               ),
             ),
+
           ),
         );
 
