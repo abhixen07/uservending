@@ -55,6 +55,7 @@ dependencies:
   qr_flutter: ^4.0.0
   image_picker: ^0.8.4+4
   easypaisa_flutter: ^1.0.3
+  share_plus: ^9.0.0
 
 
 dev_dependencies:

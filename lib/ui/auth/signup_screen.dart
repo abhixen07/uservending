@@ -55,7 +55,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Color(0xFFFFCC00),
         //automaticallyImplyLeading: false,
-        title: Center(child: const Text('SIgn Up')),
+        title: Center(child: const Text('Sign Up')),
       ),
       body: Expanded(
         child: Padding(

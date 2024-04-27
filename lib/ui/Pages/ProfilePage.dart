@@ -10,6 +10,7 @@ import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
 import 'package:vending_app/ui/Pages/AboutUs.dart';
 import 'package:vending_app/ui/auth/login_screen.dart';
 import '../Drawer/drawer_side.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -171,11 +172,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(height: 20,),
 
                     listTile(
-                      icon: Icons.person_outline,
-                      title: "Refer A Friend",
-                      backgroundColor: Colors.white,
-                    ),
-                    listTile(
                       icon: Icons.add_chart,
                       title: "About Us",
                       backgroundColor: Colors.white,
@@ -185,11 +181,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           MaterialPageRoute(builder: (context) => AboutUs()),
                         );
                       },
-                    ),
-                    listTile(
-                      icon: Icons.file_copy_outlined,
-                      title: "Help",
-                      backgroundColor: Colors.white,
                     ),
                     listTile(
                       icon: Icons.exit_to_app_outlined,
